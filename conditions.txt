@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 // POÉSIE POUR BANC.
 
 [volumeaudio = low] {Minimal, absente, invisible, nul} musique d'un silencieux instant. 
@@ -43,50 +42,4 @@ Ce sont [#personnes] qui se retrouvent dans le confort des frontières invisible
 [phraseAléatoire] Attendre ou bien se reposer, peu importe, ici naissent ces possibles. 
 [phraseAléatoire] Il est aussi bien de continuer à ne rien faire d'autre, continuer à avaler le flots des minutes qui s'écoulent. 
 [phraseAléatoire] S'assoir après ou avant d'autres actions.
-=======
-// POÉSIE POUR BANC.
-
-[volumeaudio = low] {Minimal, absente, invisible, nul} musique d'un silencieux instant. 
-[volumeambiant = high] Le bruit environnant est la musique de celui qui attend. 
-
-Déversée ce sont [#minutes] qui emplissent [#personnes = 1 = {un seul être, la solitaire existance, cette espace à seul, l'être solitaire}], qui encore as besoin de la pause offerte en ce lieu. 
-
-[interaction = lever] Après s'être posé, la personne reprend la suite du quotidiens. 
-[volumeaudio = high]  Le bruit du proche entourage ne perturbe pas la pause de celui qui est assis ici. 
-
-[momentJour = nuit] Les soirées d'été se prolongent et avec elles les instants paisible de repos. 
-[momentJour = nuit] La température descend et comme sur une balance équilibrée les astres montent.
-
-[#temps = high] Les Hautes températures invitent à s’asseoir. 
-[#temps = doux] Le temps doux d'un entre-saison accueil tous ceux qui savent attendre. 
-
-[placement = extremité] Les rebords aux extrémités de la longueur sont les places qu'offrent un entre deux... 
-[placement = extremité] L'assise en bord place en incertitudes entre un là et un ailleurs. 
-[placement = centre]    Le milieu centre entre deux potentialités, une à gauche et une à droite, seul à deux ou à plusieurs. 
-
-[12-14] Souvent en ces heures, il est bon se nourrir d'un repas comme d'un repos.
-[6-9  ] Souvent en ces heures, c'est la sortie du repos et il est bon de faire doucement.
-[9-12 ] Les première heures d'une journée sont partie, s'entame les prochaines dans le rythme perpétuel de la marche humaine.
-
-[#temps = 1heure] passée [#totaldepersonnes = 8 personnes] sur l'assise, chacun prend le temps dont il as besoin, pour un [3 minutes], pour le second [6 minutes], pour le troisième [{encore} 3 minutes]  Seul 2 on su partager ces planches.
-[#temps = secondes ]  Quelques secondes d'arrêt peuvent suffirent à un bon départ.
-[#temps = secondes ]  De passage rapide entre deux possibilités. 
-[#temps = minutes  ]  se sont écouté en solitaire. 
-[#temps = +5min    ]  Je vous aime à attendre.
-
-Ce sont [#personnes] qui se retrouvent dans le confort des frontières invisible qui les séparent. 
-[#personnes = 2  ] assise dans une bulle [volumediscussion = silencieuse] comme deux inconnus contraint à la compagnie. 
-[#personnes = + 1] Tu es là pensant être seul un autre te rejoint.
-[#personnes = + 1] Dans des pensées profondes qu'un autre interrompit.
-[#personnes = 1  ] + [phraseAléatoire] Tu es là, pensant être seul c'est le silence qui t'accompagne.
-[#personnes = -1 ] Se lève pour quitter le confort qu'apporte le dos de l'assise.
-
-
-[momentJour = couché de soleil] [phraseAléatoire] Plus longue [devrait être, sont] les pauses quand les raies de lumières ne touchent plus que le haut des choses. 
-
-[phraseAléatoire] Savoir quoi faire n'est pas nécessaire, être ici c'est déjà faire. 
-[phraseAléatoire] Attendre ou bien se reposer, peu importe, ici naissent ces possibles. 
-[phraseAléatoire] Il est aussi bien de continuer à ne rien faire d'autre, continuer à avaler le flots des minutes qui s'écoulent. 
-[phraseAléatoire] S'assoir après ou avant d'autres actions.
->>>>>>> 7a0983b5db0f3336383b8dae07ba346488c1dd64
 [phraseAléatoire] Le temps passé se reflète dans les pensées de celui qui attend. 
