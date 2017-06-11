@@ -11,13 +11,18 @@
 <body>
 
 	<h2>Sentences:</h2>
-	<ul id="sentences">
+	<ul id="sentenceList">
 	</ul>
-	<h2>Conditions:</h2>
-	<ul id="conditions">
+	<h2 class="hide">Conditions:</h2>
+	<ul id="conditions" class="hide">
 	</ul>
 
-	<p class="" id="dump"></p>
+	<h2 class="hide">Sentences content dictionnary:</h2>
+	<ul id="sentencesContent" class="hide">
+	</ul>
+
+
+	<p class="hide" id="dump"></p>
 	<p class="hide" id="dictionnary"></p>
 	<p class="hide" id="conditions"></p>
 </body>
@@ -26,6 +31,9 @@
 	var sentencesList;
 	var dictionnary;
 	var conditionList;
+	var sentencesContent;
+	var banc;
+
 
 	window.onload = function ()
 	{
@@ -35,24 +43,135 @@
 		sentencesList = document.getElementById("sentenceList");
 		dictionnary = document.getElementById("dictionnary").innerHTML;
 		conditionList = document.getElementById("conditions");
-		
+		sentencesContent = document.getElementById("sentencesContent");
+		// console.log( " data 0" + bancData[0] )
+
 
 		//parse dictionnary
 		parse(dictionnary);
 
-		dumpData();
+        generateSentence();
 		//vérifie les donnée du banc
-		setInterval(dumpData, 5000);
+		setInterval(generateSentence, 2000);
 
 	}
 
 
 
 	// :::::::::::::::::::::::::::::: FUNTIONS
-	function checkCondition(){
+	function generateSentence()
+	{
+		dumpData();	
+		var bancData;	
 
+		if(document.getElementById("dump").innerHTML != "" || document.getElementById("dump").innerHTML != null)
+		{
+			try {
+				 bancData = JSON.parse(document.getElementById("dump").innerHTML);
+				 executeSentence(bancData.data[0]);
+			} catch(e) {
+				// statements
+				console.log("Error: " + e);
+			}
+		}
 	}
 
+
+	function executeSentence(data)
+	{	
+		for (var i = 0; i < conditionList.children.length; i++) {
+
+			var variableName = conditionList.children[i].children[0].children[0].textContent;
+			var condition = conditionList.children[i].children[0].children[1].textContent;
+			var limit = conditionList.children[i].children[0].children[2].textContent;
+
+			var huidtystring = "humidity";
+				// console.log("huidtystring  = " + huidtystring + " / " + huidtystring.length)
+				// console.log("variableName  = " + variableName + " / " + variableName.length)
+			//.log(data[toString(variableName)] + " variableName == " + variableName + " humidity == " + data[huidtystring])
+			if(variableName == "humidity"){
+				console.log(data[variableName])
+			}
+
+			if(data[variableName] != null){
+				var variable = data[variableName];
+				// console.log(eval("data[variableName]"))
+				if(eval("data[variableName] " + condition + " " + limit))
+				{	
+					// crossSentenceForRandomWord(sentencesContent.children[i].textContent);
+					newSentence(crossSentenceForRandomWord(sentencesContent.children[i].textContent));
+				}
+			}
+			// if(window[variableName])
+		}
+		// for (var property in data) {
+		// 	console.log(data[property])
+		// }
+	}
+
+	function crossSentenceForRandomWord(text)
+	{
+		var recordword = false, indexToDelete, listWord = [], word = "";
+
+
+		for (var i = 0; i < text.length; i++) 
+		{
+
+			var letter = text[i];
+			if (letter == "{")
+			{
+				recordword = true;
+				if(indexToDelete == null)
+					indexToDelete = i;
+			}
+			else if (letter == "}") 
+			{	
+				recordword = false;
+				word += letter;
+				listWord.push(word);
+
+				// console.log("word = " + word)
+				// console.log("listWord = " + listWord)
+
+				if(listWord.length > 1)
+					text = replaceText(text, indexToDelete, i, listWord[Math.floor((Math.random() * listWord.length))]);
+			}
+			
+
+			if(recordword)
+			{
+				if(letter == ","){
+					listWord.push(word);
+					word = "";
+				}
+				else
+					word += letter;
+				// renregistre chaque mot
+			}
+		}
+
+		return text;
+
+		console.log(text)
+	}
+
+	function replaceText(text, beginIndex, endIndex, textTarget)
+	{
+		var textToReplace = text.substring(beginIndex, endIndex+1);
+		var character1 = /{/,
+		    character2 = /}/;  // no quotes here
+
+		if(character1.test(textTarget))
+			textTarget = textTarget.replace("{", "");
+		if(character2.test(textTarget))
+			textTarget = textTarget.replace("}", "");
+		
+		//correction d'un bug
+		text = text.replace("undefined", "");
+
+		text = text.replace(textToReplace, textTarget)
+		return text;
+	}
 
 	function parse(text){
 		var condition = false,
@@ -60,22 +179,30 @@
 		getCondition = false,
 		getConditionObject = false;
 
+		var sentenceContent, getSentence = false;
 		var variableName, conditionMarquer, conditionObject;
 
+		var lastSentence = false; 
+
 		variableName = conditionMarquer = conditionObject = "";
+
 		for (var i = 0; i < text.length; i++) 
 		{			
-			console.log(text[i])
 			if(text[i]== "[")
 			{
 				condition = true;
 				getVarName = true;
 				i++;
+				getSentence = false;
+				if(sentenceContent != "" && sentenceContent != null){
+					newSentenceContentDictionnary(sentenceContent);
+					sentenceContent = "";
+				}
 			}
 			
 			if(condition)
 			{
-				if(getVarName && text[i] != " " && text[i] != "]")
+				if(getVarName && text[i] != "]")
 				{	
 					variableName += text[i];
 
@@ -85,7 +212,7 @@
 						getCondition = true;
 					}
 				}
-				else if(getCondition && text[i] != " " && text[i] != "]"){
+				else if(getCondition && text[i] != "]"){
 					conditionMarquer += text[i];
 					if(text[i] == " ")
 					{
@@ -93,19 +220,24 @@
 						getConditionObject = true;
 					}
 				}
-				else if(getConditionObject && text[i] != " " && text[i] != "]"){
+				else if(getConditionObject && text[i] != "]"){
 						conditionObject += text[i];
 				}
 
 				if(text[i] == "]"){
-
-					newConditions(variableName + " " + conditionMarquer + " " + conditionObject );
+					newConditions(variableName.replace(/\s+/g, ''), conditionMarquer.replace(/\s+/g, ''), conditionObject.replace(/\s+/g, ''));
 
 					variableName = conditionMarquer = conditionObject = "";
 					condition = false;
-
+					getSentence = true;
 				}
 			}
+			else if(getSentence)
+				sentenceContent += text[i];
+
+			if(i == text.length-1)
+					newSentenceContentDictionnary(sentenceContent);
+
 		}
 	}
 
@@ -116,12 +248,51 @@
 		li.appendChild(t);
 		sentencesList.appendChild(li);
 	}
-	function newConditions(text)
+
+	function newConditions(varName, condition, limit)
+	{
+		var liElem = document.createElement("li");
+		var ulElem = document.createElement("ul");
+
+		if(varName != null)
+		{
+			var li = document.createElement("li");
+			var t = document.createTextNode(varName);
+			li.classList.add("varName");
+			li.appendChild(t);
+			ulElem.appendChild(li);
+		}
+
+		if(condition != null)
+		{
+			var li = document.createElement("li");
+			var t = document.createTextNode(condition);
+			li.classList.add("condition");
+			li.appendChild(t);
+			ulElem.appendChild(li);
+		}
+
+		if(limit != null)
+		{
+			var li = document.createElement("li");
+			var t = document.createTextNode(limit);
+			li.classList.add("limit");
+			li.appendChild(t);
+			ulElem.appendChild(li);
+		}
+
+		liElem.appendChild(ulElem);
+
+		conditionList.appendChild(liElem);
+
+	}
+
+	function newSentenceContentDictionnary(text)
 	{
 		var li = document.createElement("li");
 		var t = document.createTextNode(text);
 		li.appendChild(t);
-		conditionList.appendChild(li);
+		sentencesContent.appendChild(li);
 	}
 
 	function readTextFile(file)
@@ -169,14 +340,12 @@
 					return
 				}
 
-				console.log(json)
+				//console.log(json)
 				
 				if (json.error == "ok") {
-					console.log("ok")
-					document.getElementById("dump").innerHTML = xmlHttp.responseText
+					document.getElementById("dump").innerHTML = xmlHttp.responseText;
 				
 				} else {
-					console.log("bad")
 					document.getElementById("dump").innerHTML = "Error"
 				
 				}
