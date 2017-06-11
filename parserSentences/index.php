@@ -17,11 +17,15 @@
 	<ul id="conditions" class="hide">
 	</ul>
 
+  	<button name="send" type="button" onmousedown="generateLastFiveSentence()">
+  		Load Last Five sentence;
+  	</button>
+
 	<h2 class="hide">Sentences content dictionnary:</h2>
 	<ul id="sentencesContent" class="hide">
 	</ul>
 
-
+	
 	<p class="" id="dump"></p>
 	<p class="hide" id="dictionnary"></p>
 	<p class="hide" id="conditions"></p>
@@ -34,11 +38,12 @@
 	var sentencesContent;
 	var banc;
 	var bancData;	
-
+	var indexHistorique = 0;
 	var test = "ta raccce";
 
 	window.onload = function ()
 	{
+
 		//load dictionary
 		readTextFile("conditions.txt"); 
 
@@ -52,15 +57,23 @@
 		//parse dictionnary
 		parse(dictionnary);
 
+
         generateSentence();
 		//vérifie les donnée du banc
 		setInterval(generateSentence, 2000);
-
 	}
 
 
 
 	// :::::::::::::::::::::::::::::: FUNTIONS
+	function generateLastFiveSentence()
+	{
+		for (var i = 0; i < 5; i++) {
+			generateSentenceByIndex(indexHistorique);
+			indexHistorique ++;
+		}
+	}
+
 	function generateSentence()
 	{
 		dumpData();	
@@ -69,7 +82,24 @@
 		{
 			try {
 				 bancData = JSON.parse(document.getElementById("dump").innerHTML);
-				 executeSentence(bancData.data[0]);
+				 executeSentence(bancData.data[0], 0);
+				 indexHistorique ++;
+			} catch(e) {
+				// statements
+				console.log("Error: " + e);
+			}
+		}
+	}
+
+	function generateSentenceByIndex(index)
+	{
+		dumpData();	
+
+		if(document.getElementById("dump").innerHTML != "" || document.getElementById("dump").innerHTML != null)
+		{
+			try {
+				 bancData = JSON.parse(document.getElementById("dump").innerHTML);
+				 executeSentence(bancData.data[index], 1);
 			} catch(e) {
 				// statements
 				console.log("Error: " + e);
@@ -78,7 +108,7 @@
 	}
 
 
-	function executeSentence(data)
+	function executeSentence(data, index)
 	{	
 		for (var i = 0; i < conditionList.children.length; i++) {
 
@@ -86,25 +116,16 @@
 			var condition = conditionList.children[i].children[0].children[1].textContent;
 			var limit = conditionList.children[i].children[0].children[2].textContent;
 
-			var huidtystring = "humidity";
-				// console.log("huidtystring  = " + huidtystring + " / " + huidtystring.length)
-				// console.log("variableName  = " + variableName + " / " + variableName.length)
-			//.log(data[toString(variableName)] + " variableName == " + variableName + " humidity == " + data[huidtystring])
-			
-			if(data[variableName] != null){
+			if(data[variableName] != null)
+			{
 				var variable = data[variableName];
-				// console.log(eval("data[variableName]"))
+
 				if(eval("data[variableName] " + condition + " " + limit))
 				{	
-					// crossSentenceForRandomWord(sentencesContent.children[i].textContent);
-					newSentence(crossSentenceForRandomWord(sentencesContent.children[i].textContent));
+					newSentence(crossSentenceForRandomWord(sentencesContent.children[i].textContent), index);
 				}
 			}
-			// if(window[variableName])
 		}
-		// for (var property in data) {
-		// 	console.log(data[property])
-		// }
 	}
 
 	function crossSentenceForRandomWord(text)
@@ -171,7 +192,7 @@
 		//si contien # ==> display le content de la var
 		if(/#/.test(textTarget)){
 			textTarget = textTarget.replace("#", "");
-			
+
 			try {
 				textTarget = bancData.data[0][textTarget];
 
@@ -188,7 +209,8 @@
 		return text;
 	}
 
-	function parse(text){
+	function parse(text)
+	{
 		var condition = false,
 		getVarName = false,
 		getCondition = false,
@@ -252,16 +274,18 @@
 
 			if(i == text.length-1)
 					newSentenceContentDictionnary(sentenceContent);
-
 		}
 	}
 
-	function newSentence(text)
+	function newSentence(text, index)
 	{
 		var li = document.createElement("li");
 		var t = document.createTextNode(text);
 		li.appendChild(t);
-		sentencesList.appendChild(li);
+		if(!index)
+			sentencesList.appendChild(li);
+		else
+			sentencesList.insertBefore(li, sentencesList.children[sentencesList.children.length]);
 	}
 
 	function newConditions(varName, condition, limit)
