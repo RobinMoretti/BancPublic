@@ -1,4 +1,4 @@
-[humidity == 0] {Minimal, absente, invisible, nul} musique d'un silencieux instant. 
+[humidity == 0] {#humidity} musique d'un silencieux instant. 
 [volumeambiant == high] Le bruit environnant est la musique de celui qui attend. Déversée ce sont {#minutes} qui emplissent 
 [personnes == 1]{#personnes} {un seul être, la solitaire existance, cette espace à seul, l'être solitaire} , qui encore as besoin de la pause offerte en ce lieu. 
 

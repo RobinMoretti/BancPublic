@@ -22,7 +22,7 @@
 	</ul>
 
 
-	<p class="hide" id="dump"></p>
+	<p class="" id="dump"></p>
 	<p class="hide" id="dictionnary"></p>
 	<p class="hide" id="conditions"></p>
 </body>
@@ -33,7 +33,9 @@
 	var conditionList;
 	var sentencesContent;
 	var banc;
+	var bancData;	
 
+	var test = "ta raccce";
 
 	window.onload = function ()
 	{
@@ -62,7 +64,6 @@
 	function generateSentence()
 	{
 		dumpData();	
-		var bancData;	
 
 		if(document.getElementById("dump").innerHTML != "" || document.getElementById("dump").innerHTML != null)
 		{
@@ -89,10 +90,7 @@
 				// console.log("huidtystring  = " + huidtystring + " / " + huidtystring.length)
 				// console.log("variableName  = " + variableName + " / " + variableName.length)
 			//.log(data[toString(variableName)] + " variableName == " + variableName + " humidity == " + data[huidtystring])
-			if(variableName == "humidity"){
-				console.log(data[variableName])
-			}
-
+			
 			if(data[variableName] != null){
 				var variable = data[variableName];
 				// console.log(eval("data[variableName]"))
@@ -135,6 +133,10 @@
 
 				if(listWord.length > 1)
 					text = replaceText(text, indexToDelete, i, listWord[Math.floor((Math.random() * listWord.length))]);
+				else if(listWord.length == 1)
+					text = replaceText(text, indexToDelete, i, listWord[0]);
+
+				listWord = [];
 			}
 			
 
@@ -156,7 +158,7 @@
 	}
 
 	function replaceText(text, beginIndex, endIndex, textTarget)
-	{
+	{	
 		var textToReplace = text.substring(beginIndex, endIndex+1);
 		var character1 = /{/,
 		    character2 = /}/;  // no quotes here
@@ -165,6 +167,19 @@
 			textTarget = textTarget.replace("{", "");
 		if(character2.test(textTarget))
 			textTarget = textTarget.replace("}", "");
+
+		//si contien # ==> display le content de la var
+		if(/#/.test(textTarget)){
+			textTarget = textTarget.replace("#", "");
+			
+			try {
+				textTarget = bancData.data[0][textTarget];
+
+			} catch(e) {
+				// statements
+				textTarget = e +" // " + textTarget + " // ";
+			}
+		}
 		
 		//correction d'un bug
 		text = text.replace("undefined", "");
