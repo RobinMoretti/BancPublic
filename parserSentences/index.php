@@ -9,6 +9,33 @@
 	</style>
 </head>
 <body>
+	<div id="sendForm">
+	  	<label for="humidity" >humidity</label>
+	  	<input type="number" id="humidity" value=0>
+	  	
+	  	<label for="soundVolume" >soundVolume</label>
+	  	<input type="number" id="soundVolume" value=0>
+	  	
+	  	<label for="peopleCount" >peopleCount</label>
+	  	<input type="number" id="peopleCount" value=0>
+	  	
+	  	<label for="windSpeed" >windSpeed</label>
+	  	<input type="number" id="windSpeed" value=0>
+	  	
+	  	<label for="temperature" >temperature</label>
+	  	<input type="number" id="temperature" value=0>
+	  	
+	  	<label for="raining" >raining</label>
+	  	<input type="number" id="raining" value=0>
+	  	
+	  	<label for="place" >place</label>
+	  	<input type="number" id="place" value=0>
+	  	
+	  	<button name="send" type="button" onmousedown="sendData()">
+	  		Send
+	  	</button>
+  	</div>
+
 
 	<h2>Sentences:</h2>
 	<ul id="sentenceList">
@@ -25,10 +52,9 @@
 	<ul id="sentencesContent" class="hide">
 	</ul>
 
-	
-	<p class="" id="dump"></p>
+	<!-- cache variable -->
+	<p class="hide" id="dump"></p> 
 	<p class="hide" id="dictionnary"></p>
-	<p class="hide" id="conditions"></p>
 </body>
 
 <script>
@@ -48,11 +74,9 @@
 		readTextFile("conditions.txt"); 
 
 		sentencesList = document.getElementById("sentenceList");
-		dictionnary = document.getElementById("dictionnary").innerHTML;
+		dictionnary = document.getElementById("dictionnary").textContent;
 		conditionList = document.getElementById("conditions");
 		sentencesContent = document.getElementById("sentencesContent");
-		// console.log( " data 0" + bancData[0] )
-
 
 		//parse dictionnary
 		parse(dictionnary);
@@ -82,7 +106,7 @@
 		{
 			try {
 				 bancData = JSON.parse(document.getElementById("dump").innerHTML);
-				 executeSentence(bancData.data[0], 0);
+				 executeSentence(bancData.data[bancData.data.length - 1], 0);
 				 indexHistorique ++;
 			} catch(e) {
 				// statements
@@ -99,7 +123,8 @@
 		{
 			try {
 				 bancData = JSON.parse(document.getElementById("dump").innerHTML);
-				 executeSentence(bancData.data[index], 1);
+				 if(index < bancData.data.length)
+				 	executeSentence(bancData.data[bancData.data.length - index], 1);
 			} catch(e) {
 				// statements
 				console.log("Error: " + e);
@@ -111,21 +136,53 @@
 	function executeSentence(data, index)
 	{	
 		for (var i = 0; i < conditionList.children.length; i++) {
+			var variableName = conditionList.children[i].textContent;
+			
+			variableName = convertStringVarToData(variableName, data);
 
-			var variableName = conditionList.children[i].children[0].children[0].textContent;
-			var condition = conditionList.children[i].children[0].children[1].textContent;
-			var limit = conditionList.children[i].children[0].children[2].textContent;
-
-			if(data[variableName] != null)
-			{
-				var variable = data[variableName];
-
-				if(eval("data[variableName] " + condition + " " + limit))
-				{	
-					newSentence(crossSentenceForRandomWord(sentencesContent.children[i].textContent), index);
+			if(variableName != false)
+			{	
+				if(eval(variableName)){
+					// console.log(sentencesContent.children[i].textContent)
+					newSentence(crossSentenceForRandomWord(sentencesContent.children[i].textContent), index);	
 				}
 			}
 		}
+	}
+
+	function convertStringVarToData(text, data)
+	{
+
+		for (var i = 0; i < text.length; i++) {
+			if(text[i] == "#"){
+				// si variable vérifie si elle existe
+				var x = i;
+				var variable = "";
+
+				while (text[x] != " ") 
+				{
+					x ++;
+					variable += text[x];
+				}
+
+				// insert 'data[' + var + ']'
+
+				var newCondition = 'data["' + text.slice(i, x) + '"]';
+				newCondition = newCondition.replace("#", "");
+				variable = variable.replace("#", "");
+				variable = variable.replace(" ", "");
+
+
+				if(data[variable] != null){
+					text = text.replace("#" + variable, newCondition);
+				}
+				else 
+					return false;
+
+			}
+		}
+
+		return text;
 	}
 
 	function crossSentenceForRandomWord(text)
@@ -149,9 +206,6 @@
 				word += letter;
 				listWord.push(word);
 
-				// console.log("word = " + word)
-				// console.log("listWord = " + listWord)
-
 				if(listWord.length > 1)
 					text = replaceText(text, indexToDelete, i, listWord[Math.floor((Math.random() * listWord.length))]);
 				else if(listWord.length == 1)
@@ -163,7 +217,7 @@
 
 			if(recordword)
 			{
-				if(letter == ","){
+				if(letter == ""){
 					listWord.push(word);
 					word = "";
 				}
@@ -174,8 +228,6 @@
 		}
 
 		return text;
-
-		console.log(text)
 	}
 
 	function replaceText(text, beginIndex, endIndex, textTarget)
@@ -217,11 +269,11 @@
 		getConditionObject = false;
 
 		var sentenceContent, getSentence = false;
-		var variableName, conditionMarquer, conditionObject;
+		var variableName;
 
 		var lastSentence = false; 
 
-		variableName = conditionMarquer = conditionObject = "";
+		variableName = "";
 
 		for (var i = 0; i < text.length; i++) 
 		{			
@@ -242,29 +294,11 @@
 				if(getVarName && text[i] != "]")
 				{	
 					variableName += text[i];
-
-					if(text[i] == " ")
-					{
-						getVarName = false;
-						getCondition = true;
-					}
-				}
-				else if(getCondition && text[i] != "]"){
-					conditionMarquer += text[i];
-					if(text[i] == " ")
-					{
-						getCondition = false;
-						getConditionObject = true;
-					}
-				}
-				else if(getConditionObject && text[i] != "]"){
-						conditionObject += text[i];
 				}
 
 				if(text[i] == "]"){
-					newConditions(variableName.replace(/\s+/g, ''), conditionMarquer.replace(/\s+/g, ''), conditionObject.replace(/\s+/g, ''));
-
-					variableName = conditionMarquer = conditionObject = "";
+					newConditions(variableName);
+					variableName = "";
 					condition = false;
 					getSentence = true;
 				}
@@ -288,7 +322,7 @@
 			sentencesList.insertBefore(li, sentencesList.children[sentencesList.children.length]);
 	}
 
-	function newConditions(varName, condition, limit)
+	function newConditions(varName)
 	{
 		var liElem = document.createElement("li");
 		var ulElem = document.createElement("ul");
@@ -299,31 +333,9 @@
 			var t = document.createTextNode(varName);
 			li.classList.add("varName");
 			li.appendChild(t);
-			ulElem.appendChild(li);
+			conditionList.appendChild(li);
+
 		}
-
-		if(condition != null)
-		{
-			var li = document.createElement("li");
-			var t = document.createTextNode(condition);
-			li.classList.add("condition");
-			li.appendChild(t);
-			ulElem.appendChild(li);
-		}
-
-		if(limit != null)
-		{
-			var li = document.createElement("li");
-			var t = document.createTextNode(limit);
-			li.classList.add("limit");
-			li.appendChild(t);
-			ulElem.appendChild(li);
-		}
-
-		liElem.appendChild(ulElem);
-
-		conditionList.appendChild(liElem);
-
 	}
 
 	function newSentenceContentDictionnary(text)
@@ -345,7 +357,7 @@
 	            if(rawFile.status === 200 || rawFile.status == 0)
 	            {
 	                var allText = rawFile.responseText;
-	                document.getElementById("dictionnary").innerHTML = allText;
+	                document.getElementById("dictionnary").textContent = allText;
 	            }
 	        }
 	    }
@@ -390,6 +402,68 @@
 				}
 			}
 		}
-}
+	}
+
+	function sendData() {
+		// recuperation des donnés de la page html
+		var humidity = document.getElementById('humidity').value;
+		var soundVolume = document.getElementById('soundVolume').value;
+		var peopleCount = document.getElementById('peopleCount').value;
+		var windSpeed= document.getElementById('windSpeed').value;
+		var temperature = document.getElementById('temperature').value;
+		var raining = document.getElementById('raining').value;
+		var place = document.getElementById('place').value;
+
+	 
+		var JSONMarker = {
+			humidity:humidity,
+			soundVolume:soundVolume,
+			peopleCount:peopleCount,
+			windSpeed:windSpeed,
+			temperature:temperature,
+			raining:raining,
+			place:place
+		}
+
+		// console.log("Sending path: " + JSONMarker.paths)
+		// console.log("Sending group: " + JSONMarker.group)
+
+		var JSONString = JSON.stringify(JSONMarker)
+		console.log("Sending : " + JSONString)
+
+		var xmlHttp = null
+
+		xmlHttp = new XMLHttpRequest()
+		xmlHttp.open("POST",'../guillaume/databench.php?feed=true', true)
+		xmlHttp.setRequestHeader("Content-type", "application/json") // json header
+		xmlHttp.setRequestHeader("If-Modified-Since", "Sat, 1 Jan 2000 00:00:00 GMT") // IE Cache Hack
+		xmlHttp.setRequestHeader("Cache-Control", "no-cache") // idem
+		xmlHttp.send(JSONString)
+
+		xmlHttp.onreadystatechange=function() {
+			if(xmlHttp.readyState == 4){
+				var json = null
+
+				try {
+					json = JSON.parse(xmlHttp.responseText)
+				} catch (err) {
+					console.log("error json parse "+ err)
+					console.log(xmlHttp.responseText)
+					return
+				}
+
+				console.log(json)
+				
+				if (json.error == "ok") {
+					console.log("ok")
+					
+				} else {
+					console.log("bad")
+					
+				}
+			}
+		}
+
+	}
 </script>
 </html>

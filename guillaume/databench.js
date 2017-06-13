@@ -29,7 +29,7 @@ function sendData() {
 	var xmlHttp = null
 
 	xmlHttp = new XMLHttpRequest()
-	xmlHttp.open("POST",'databench.php?feed=true', true)
+	xmlHttp.open("POST",'../guillaume/databench.php?feed=true', true)
 	xmlHttp.setRequestHeader("Content-type", "application/json") // json header
 	xmlHttp.setRequestHeader("If-Modified-Since", "Sat, 1 Jan 2000 00:00:00 GMT") // IE Cache Hack
 	xmlHttp.setRequestHeader("Cache-Control", "no-cache") // idem
@@ -65,7 +65,8 @@ function dumpData() {
 	var xmlHttp = null
 
 	xmlHttp = new XMLHttpRequest()
-	xmlHttp.open("GET",'databench.php?dump=true', true)
+	xmlHttp.open("GET",'../guillaume/databench.php?dump=true', true)
+
 	xmlHttp.setRequestHeader("Content-type", "application/json") // json header
 	xmlHttp.setRequestHeader("If-Modified-Since", "Sat, 1 Jan 2000 00:00:00 GMT") // IE Cache Hack
 	xmlHttp.setRequestHeader("Cache-Control", "no-cache") // idem
