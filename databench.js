@@ -1,0 +1,394 @@
+// parser
+
+var openweatherUrl = "http://api.openweathermap.org/data/2.5/weather?q=Aix-en-Provence&mode=json&appid=5514217a60117d773851987cbb7b5fae"
+
+function generate() {
+    //document.getElementById("dump").innerHTML =  " " ;
+
+    dumpData();
+    console.log('dump');
+    var conditionText = "";
+    var conditions;
+    //getWeather2();
+    var weather = null
+    getWeather().then(function(response) {
+
+        weather = eval(response);
+        //console.log(weather);
+
+    }, function(Error) {
+        //console.log("get weather error: "+Error);
+    });
+
+
+    readTextFile("conditions.txt").then(function(response) {
+        ////console.log(response);
+        conditionText = response;
+        conditionText = conditionText.replace(/^\s*[\r\n]/gm, "");
+        conditions = conditionText.split('\n');
+        //console.log(conditions);
+    }, function(Error) {
+        //console.log(Error);
+    });
+
+
+    getData().then(function(response) {
+
+        var data = response.data[response.data.length - 1];
+
+        var d = Date.parse(data.date);
+        var date = new Date(d);
+        data.date = date;
+        data.hour = data.date.getHours();
+        data.minute = data.date.getMinutes();
+        data.day = data.date.getDay();
+        data.month = data.date.getMonth();
+        data.year = data.date.getFullYear();
+
+        data.windSpeed = weather.wind.speed;
+        data.sky = weather.weather[0].main;
+        //console.log(data);
+        var allresult = "";
+
+
+        for (var i = 0; i < conditions.length; i++) {
+            var t = conditions[i]; //"[peopleCount==2] le {bleu|rouge|vert}, est une chouette couleur.";
+
+            var rVar = new RegExp(/\[([^\]]+)]/g);
+            var rRand = new RegExp(/{([^}]+)}/g);
+            var rFormat = new RegExp(/#([^#]+)#/g);
+            var v = t.replace(rVar, variables);
+            var r = v.replace(rRand, randoms) + "#";
+            var f = r.replace(rFormat, format);
+            var d = f.replace(/\$/g, "data.");
+
+            ////console.log(data);
+            //console.log(d);
+            if (i == conditions.length - 1)
+                document.getElementById("dump").innerHTML = '<p class="phrase">' + allresult + '</p>' + document.getElementById("dump").innerHTML;
+
+            var result = null;
+
+            if (eval(d) === undefined) continue;
+
+            if (result != null) {
+                allresult += result;
+            }
+            //console.log(i + ":\t " + result);
+        }
+
+
+    }, function(Error) {
+        //console.log("get data error: "+Error);
+    });
+}
+
+function variables(a, b) {
+    return ("if(" + b + ") result=#");
+}
+
+function randoms(a, b) {
+    var tt = b.split('|');
+    var r = Math.random() * tt.length;
+    return tt[Math.floor(r)];
+}
+
+function format(a, b) {
+    return ("\"" + b + "\";");
+}
+
+
+function getData() {
+    return new Promise(function(resolve, reject) {
+        var xmlHttp = null;
+
+        xmlHttp = new XMLHttpRequest();
+        xmlHttp.open("GET", 'databench.php?dump=true&last=true', true);
+        xmlHttp.setRequestHeader("Content-type", "application/json"); // json header
+        xmlHttp.setRequestHeader("If-Modified-Since", "Sat, 1 Jan 2000 00:00:00 GMT"); // IE Cache Hack
+        xmlHttp.setRequestHeader("Cache-Control", "no-cache"); // idem
+
+
+        xmlHttp.onerror = function() {
+            consoleText.content = "Network error";
+            consoleText.fillColor = 'red';
+            // window.setTimeout(function(){
+            // consoleText.content = "Idle."
+            // consoleText.fillColor = 'grey'
+            // }, 2000)
+            reject(Error('There was a network error.'));
+        }
+
+        xmlHttp.onload = function() {
+            if (xmlHttp.status === 200) {
+                var json = null;
+
+                try {
+                    json = JSON.parse(xmlHttp.responseText);
+                } catch (err) {
+                    //console.log("error json parse "+ err);
+                    //console.log(xmlHttp.responseText);
+                    document.getElementById("dump").innerHTML = "JSON parse Error"
+                    reject(Error('JSON parse error.'));
+                }
+
+                if (json.error == "ok") {
+                    //console.log("ok")
+                    resolve(json);
+                } else {
+                    //console.log("bad")
+                    reject(Error('bad bad bad.'))
+                }
+            } else {
+                reject(Error('Network error:' + xmlHttp.statusText))
+            }
+        }
+
+        xmlHttp.send();
+    });
+}
+// end parser
+// var getWeather = function() {
+//     gettingData = true;
+//     var requestString = openweatherUrl;
+//     
+//     request = new XMLHttpRequest();
+//     //request.setRequestHeader("Content-type", "application/x-www-form-urlencoded;charset=UTF-8"); // json header
+//    
+//  
+//     request.onload = proccessResults;
+//     request.open("get", requestString, true);
+//     request.send(null);
+// };
+
+var proccessResults = function() {
+    //console.log(this);
+    var results = JSON.parse(this.responseText);
+    //console.log(results);
+};
+
+function sendData() {
+    // recuperation des donnés de la page html
+    var humidity = document.getElementById('humidity').value;
+    var soundVolume = document.getElementById('soundVolume').value;
+    var peopleCount = document.getElementById('peopleCount').value;
+    var windSpeed = document.getElementById('windSpeed').value;
+    var temperature = document.getElementById('temperature').value;
+    var raining = document.getElementById('raining').value;
+    var places = document.getElementById('places').value;
+
+    var JSONMarker = {
+        humidity: humidity,
+        soundVolume: soundVolume,
+        peopleCount: peopleCount,
+        windSpeed: windSpeed,
+        temperature: temperature,
+        raining: raining,
+        places: places
+    };
+
+    // //console.log("Sending path: " + JSONMarker.paths)
+    // //console.log("Sending group: " + JSONMarker.group)
+
+    var JSONString = JSON.stringify(JSONMarker);
+    //console.log("Sending : " + JSONString);
+
+    var xmlHttp = null;
+
+    xmlHttp = new XMLHttpRequest();
+    xmlHttp.open("POST", 'databench.php?feed=true', true);
+    xmlHttp.setRequestHeader("Content-type", "application/json"); // json header
+    xmlHttp.setRequestHeader("If-Modified-Since", "Sat, 1 Jan 2000 00:00:00 GMT"); // IE Cache Hack
+    xmlHttp.setRequestHeader("Cache-Control", "no-cache"); // idem
+    xmlHttp.send(JSONString);
+
+    xmlHttp.onreadystatechange = function() {
+        if (xmlHttp.readyState == 4) {
+            var json = null;
+
+            try {
+                json = JSON.parse(xmlHttp.responseText);
+            } catch (err) {
+                //console.log("error json parse "+ err);
+                //console.log(xmlHttp.responseText);
+                return;
+            }
+
+            //console.log(json);
+
+            if (json.error == "ok") {
+                //console.log("ok");
+
+            } else {
+                //console.log("bad");
+
+            }
+        }
+    }
+
+}
+
+function dumpData() {
+    var xmlHttp = null;
+
+    xmlHttp = new XMLHttpRequest();
+    xmlHttp.open("GET", 'databench.php?dump=true', true);
+    xmlHttp.setRequestHeader("Content-type", "application/json"); // json header
+    xmlHttp.setRequestHeader("If-Modified-Since", "Sat, 1 Jan 2000 00:00:00 GMT"); // IE Cache Hack
+    xmlHttp.setRequestHeader("Cache-Control", "no-cache"); // idem
+    xmlHttp.send();
+
+    xmlHttp.onreadystatechange = function() {
+        if (xmlHttp.readyState == 4) {
+            var json = null;
+
+            try {
+                json = JSON.parse(xmlHttp.responseText);
+            } catch (err) {
+                //console.log("error json parse "+ err);
+                console.log(xmlHttp.responseText);
+                // document.getElementById("dump").innerHTML = "JSON parse Error";
+
+                return;
+            }
+
+            //console.log(json);
+
+            if (json.error == "ok") {
+                // document.getElementById("dump").innerHTML = xmlHttp.responseText;
+                console.log(json["data"]);
+                var target = document.getElementById("dumpContainer");
+                target.innerHTML = "<span onclick=\"document.getElementById('id01').style.display='none'\" class=\"w3-button w3-display-topright\">&times;</span>";
+                for(var data in json["data"][0]){
+                  if(data != "id"){
+                    if(data == "peopleCount"){
+                      target.innerHTML += "<li>" + data + " : <span id='" + data + "'></span> " + json["data"][0][data] + " personnes</li>";
+                    }
+                    else           
+                           target.innerHTML += "<li>" + data + " : <span id='" + data + "'></span> " + json["data"][0][data] + "</li>";
+                  }
+                }
+
+            } else {
+                //console.log("bad");
+                console.log(xmlHttp.responseText);
+
+                // document.getElementById("dump")innerHTML = "Error";
+
+            }
+        }
+    }
+}
+
+function getWeather() {
+
+    return new Promise(function(resolve, reject) {
+        var xmlHttp = null;
+
+        xmlHttp = new XMLHttpRequest();
+        xmlHttp.open("GET", openweatherUrl, true);
+
+        xmlHttp.onerror = function() {
+            reject(Error('There was a network error.'));
+            //console.log("error");
+        }
+
+        xmlHttp.onload = function() {
+            if (xmlHttp.status === 200) {
+                var json = null;
+
+                try {
+                    json = JSON.parse(xmlHttp.responseText);
+                } catch (err) {
+                    //console.log("error json parse "+ err);
+                    //console.log(xmlHttp.responseText);
+                    reject(Error('JSON parse error.'));
+                }
+                //console.log("weather here");
+                resolve(json);
+
+            } else {
+                //console.log("weather network error");
+                reject(Error('Network error:' + xmlHttp.statusText))
+            }
+        }
+        xmlHttp.send(null);
+    });
+}
+
+function readTextFile(file) {
+    return new Promise(function(resolve, reject) {
+        var rawFile = new XMLHttpRequest();
+        rawFile.open("GET", file, false);
+
+
+        rawFile.onerror = function() {
+            reject(Error('readTextFile network error:' + rawFile.statusText));
+        }
+
+        rawFile.onload = function() {
+            if (rawFile.status === 200) {
+                resolve(rawFile.responseText);
+            } else {
+                //console.log("bad");
+                reject(Error('readTextFile network error:' + rawFile.statusText));
+            }
+        }
+        rawFile.send(null);
+    });
+}
+
+
+// Robin JS
+
+var phrases = document.getElementsByClassName('phrase');
+var arrayphrases = [];
+for (var i = 0; i < phrases.length; i++) {
+
+    arrayphrases.push(phrases[i]);
+
+}
+
+window.onload = function() {
+    phraseLenght = document.getElementsByClassName("phrase").length;
+
+    index = phraseLenght;
+
+    setInterval(function() {
+        if (typeof document.getElementsByClassName("phrase")[document.getElementsByClassName("phrase").length - 1] !== 'undefined'){
+            phraseReference = document.getElementsByClassName("phrase")[document.getElementsByClassName("phrase").length - 1];
+            console.log('IsDefine');
+        }
+
+        generate();
+        /*
+            phraseLenght = document.getElementsByClassName("phrase").length;
+
+            if(document.getElementsByClassName("phrase")[0].classList.contains("hide"))
+              document.getElementsByClassName("phrase")[0].classList.remove("hide");
+
+            newPhrase = document.getElementsByClassName("phrase")[index];
+
+            if(index > 0){
+             index--;
+            }
+        */
+
+
+        if (typeof document.getElementsByClassName("phrase")[document.getElementsByClassName("phrase").length - 1] !== 'undefined') {
+            console.log('scrooool');
+            if (document.body.scrollTop > 0) {
+
+                console.log("ok ==== " + phraseReference.offsetHeight);
+                document.body.scrollTop += phraseReference.offsetHeight;
+                console.log("ok ==== " + document.body.scrollTop);
+            }
+        }
+
+    }, 3000);
+
+}
+
+window.onscroll = function() {
+    //console.log(document.body.scrollTop);
+};

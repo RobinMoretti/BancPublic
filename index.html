@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html  lang="fr">
+  <head>
+     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <link rel="stylesheet" href="assets/w3.css">
+    <link rel="stylesheet" href="assets/css.css">
+    <title>Banc Poétique</title>
+    <script src="databench.js"></script>
+  </head>
+  
+<!-- 
+  humidity:humidity,
+soundVolume:soundVolume,
+peopleCount:peopleCount,
+windSpeed:windSpeed,
+temperature:temperature,
+raining:raining
+ -->
+
+  <body>
+    <div class='content w3-container'>
+     <div class='header'>
+        <div class='titre'> 
+          <span onclick="document.getElementById('id01').style.display='block'">Data Bench</span>
+        </div> 
+        <div id="infoclick" class='info' onclick="document.getElementById('info').style.display='block'"> 
+          <span>i</span>
+        </div> 
+    </div> 
+    <div id="info" class="w3-modal">
+      <div class="w3-modal-content">
+        <div class="w3-container">
+          <span onclick="document.getElementById('info').style.display='none'" class="w3-button w3-display-topright">&times;</span>
+              <p>Espace internet où s’accumulent en temps réel des phrases en contexte avec ce qui se passe sur et autour d’un banc public.
+              <ul>
+                <li>&#9670; nombre aproximatif des personnes assises</li>
+                <li>&#9670; placement aproximatif de l'assise sur le banc</li>
+                <li>&#9670; durée de l'assise</li>
+                <li>&#9670; température ambiante</li>
+                <li>&#9670; volume ambiant</li>
+              </ul>
+              </p>
+              <img src="assets/databench.jpg" alt="databench">
+        </div>
+      </div>
+    </div>
+    <div id="id01" class="w3-modal">
+      <div class="w3-modal-content">
+        <div class="w3-container" id="dumpContainer">
+          
+            <!-- <li>volume ambiant : <span id='volAmbiant'></span> dB</li>
+            <li>minutes écoulé : <span id='minutes'></span></li>
+            <li>nombre de personnes : <span id='personnes'></span></li>
+            <li>total de personnes : <span  id='totalPersonnes'></span></li>
+            <li>moment de la journée : <span id='momentJour'></span></li>
+            <li>température : <span id='temp'></span></li>
+            <li>placement sur le banc : <span id='placement'></span></li>
+            <li>vitesse du vent : <span id='vent'></span></li> -->
+        </div>
+      </div>
+    </div>
+  
+  	<div id="dump" class='phrases'> 
+  	</div>  
+
+  <script>
+var modal = document.getElementById('id01');
+  window.onclick = function(event) {
+      if (event.target == modal) {
+          modal.style.display = "none";
+      }
+  };
+document.getElementById('infoclick').addEventListener('click', function() {
+  document.getElementById('infoclick').classList.add('clickbounce');
+  function stopanime(){ setTimeout(stop,600); }
+  function stop() { document.getElementById('infoclick').classList.remove('clickbounce'); }
+  stopanime();
+});
+</script>
+  </body>
+
+</html>

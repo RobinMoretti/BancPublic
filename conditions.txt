@@ -1,0 +1,21 @@
+// $year, $month, $day, $hour, $minute, $peopleCount, $humidity, $soundVolume, $windSpeed, $temperature, $raining, $places, $sky
+
+[$humidity==0] Se lève pour quitter le confort qu'apporte le dos de l'assise. Pensant être seul c'est le silence qui t'accompagne.
+
+[$peopleCount == 2]{FOO|BAR|PLUS} un seul <b>être</b> la solitaire existance cette espace à seul l'être solitaire , qui encore as besoin de la pause offerte en ce lieu.
+[$peopleCount == 1]{peopleCount} un seul être la solitaire existance cette espace à seul l'être solitaire , qui encore as besoin de la pause offerte en ce lieu.
+[$peopleCount == 2]{FOO|BAR|PLUS} blabla.
+
+[$hour < 5 && $peopleCount > 1] Hello World.
+[$hour > 10 ] Il est plus de 10 heure, il est {$hour} heure.
+
+[$temperature == 29] La température est égale à {temperature}.
+
+[$soundVolume > 100] Le volume  est égale à {soundVolume}.
+
+[$soundVolume > 400] Le bruit du proche entourage ne perturbe pas la pause de celui qui est assis ici. 
+
+[$hour > 19] Les soirées d'été se prolongent et avec elles les instants paisible de repos. 
+[$hour > 21 && $temperature < 20] La température descend et comme sur une balance équilibrée les astres montent.
+
+[$temperature >= 31] Les Hautes températures invitent à s’asseoir. 
